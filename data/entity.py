@@ -7,12 +7,12 @@ configurations = {
     }
 }
 
+
 class Entity:
-    
     def __init__(self, entity_id: str):
         self.entity_id = entity_id
         self.get_config()
-        
+
     def get_config(self):
         entity_config = configurations[self.entity_id]
         self.gravity_modifier = entity_config["gravity"]

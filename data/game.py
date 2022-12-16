@@ -1,16 +1,21 @@
 from time import perf_counter
-from data.player import Player
-from data.metadata import MetaData
-from data.entity import Entity
 
-class Game:
-    def __init__(self, metadata: MetaData, name: str, difficulty: str):
+from data.player import Player
+
+
+class Game(Player):
+    def __init__(self):
+        super(Game, self).__init__()
         self.start_time: int = perf_counter()
         self.score: int = 0
-        self.name: str = name
+        self.name: str = ""
         self.current_highscore: int = 0
-        self.lives: int = self.get_lives(difficulty)
-        self.player: Player = Player(metadata)
+
+    def update_player_name(self, name):
+        self.name = name
+
+    def update_lives(self, lives):
+        self.lives = lives
 
     def current_alive_time(self):
         current_time: int = perf_counter()
@@ -20,7 +25,10 @@ class Game:
     def get_lives(self, difficulty: str):
         if difficulty == "easy":
             return 5
-        
+
     def check_player_status(self):
-        if self.player.lives == 0:
+        if self.lives == 0:
             self.playing = False
+
+    def increment_score(self, increase):
+        self.score += increase
