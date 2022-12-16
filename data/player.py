@@ -3,9 +3,12 @@ from data.metadata import MetaData
 
 class Player(pygame.sprite.DirtySprite):
     def __init__(self, metadata: MetaData):
-        pygame.sprite.DirtySprite.__init__(self) # super().__init__()
+        super().__init__()
         self.metadata: MetaData = metadata
         self.dead = False
+        self.is_jumping = False
+        self.double_jumping = False
+        self.jump_steps = 10
         self.position = pygame.Vector2()
         self.player_width: int = 38
         self.player_height: int = 51
@@ -13,9 +16,9 @@ class Player(pygame.sprite.DirtySprite):
         self.distance: int = 0
         self.coord_y: int = self.metadata.screen_height / 2
         self.coord_x: int = self.metadata.screen_width / 2
-        self.gravity: int = -3
-        self.jump_height: int = 10
-        self.speed: int = 100
+        self.gravity: int = -0.1
+        self.jump_height: int = 20
+        self.speed: int = 200
         self.right_player_sprite: pygame.image = pygame.image.load(
             "gfx\\right_bird.png"
         ).convert_alpha()
@@ -42,12 +45,25 @@ class Player(pygame.sprite.DirtySprite):
         self.lives = self.lives - 1
 
     def update(self, dt):
-        self.coord_x = (self.direction * (self.speed * dt)) + self.coord_x
-        self.coord_y = self.coord_y - ((self.gravity / 10) * 2)
+        if self.is_jumping:
+            # if self.double_jumping:
+            #     self.jump_steps = 10
+            #     self.double_jumping_applied = False
+            if self.jump_steps >= -10:
+                self.coord_x += (abs(self.jump_steps) * self.direction * (self.speed * dt))
+                self.coord_y -= (self.jump_steps * abs(self.jump_steps)) * (self.jump_height/50) - ((self.gravity / (10 * dt)))
+                self.jump_steps -= 1
+            else:
+                self.jump_steps = 10
+                self.reset_jump()
+        else:
+            self.coord_x = (self.direction * (self.speed * dt)) + self.coord_x
+            self.coord_y = self.coord_y - ((self.gravity / (10 * dt)))
 
         self.check_window_boundary_collisions()
         self.refresh_sprite()
 
+    
     def refresh_sprite(self):
         self.image = self.scale_sprite(self.get_sprite())
         return self.image
@@ -73,8 +89,15 @@ class Player(pygame.sprite.DirtySprite):
     def kill_sprite(self):
         self.dead = True
 
+    def reset_jump(self):
+        self.is_jumping = False
+        self.double_jumping = False
+
     def jump(self):
-        self.coord_y = self.coord_y - self.jump_height
+        if self.is_jumping and not self.double_jumping:
+            self.double_jumping = True
+        else:
+            self.is_jumping = True
 
     def change_speed(self, change):
         self.speed = self.speed + change

@@ -10,9 +10,7 @@ class Game:
         self.name: str = name
         self.current_highscore: int = 0
         self.lives: int = self.get_lives(difficulty)
-        player = Player(metadata)
-        self.allsprites: tuple[Player, Entity] = (player)
-        self.player: Player = player
+        self.player: Player = Player(metadata)
 
     def current_alive_time(self):
         current_time: int = perf_counter()
