@@ -13,7 +13,4 @@ Future Ideas:
 
 Entity Ideas:
 
-- Mario Coin = Score
-- 1Up Mushroom = +1 Life
-- Falling Pipes = -Speed
-- Wing Shoes = +Jump
+
