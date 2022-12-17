@@ -31,6 +31,8 @@ def main():
     display = pygame.display.set_mode((metadata.screen_width, metadata.screen_height), RESIZABLE)
 
     pygame.display.set_caption("Flappy Pong")
+    # pygame.display.set_icon(programIcon)
+
     background = pygame.image.load("data\\gfx\\background.png")
     heart_image = pygame.image.load("data\\gfx\\heart.png").convert_alpha()
     heart_image = pygame.transform.scale(heart_image, (40, 40))
