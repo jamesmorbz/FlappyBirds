@@ -31,11 +31,15 @@ def main():
     display = pygame.display.set_mode((metadata.screen_width, metadata.screen_height), RESIZABLE)
 
     pygame.display.set_caption("Flappy Pong")
-    # pygame.display.set_icon(programIcon)
+    
 
     background = pygame.image.load("data\\gfx\\background.png")
     heart_image = pygame.image.load("data\\gfx\\heart.png").convert_alpha()
     heart_image = pygame.transform.scale(heart_image, (40, 40))
+
+    logo_image = pygame.image.load("data\\gfx\\logo_image.png").convert_alpha()
+    pygame.display.set_icon(logo_image)
+    logo_image = pygame.transform.scale(logo_image, (200, 200))
 
     game = Game()
     game.update_player_name("James")
@@ -43,7 +47,7 @@ def main():
     entity = Entity("coin")
     mushroom = Entity("1-up")
     zoom_shoes = Entity("zoom_shoes")
-    logo_y_coord = 30
+    logo_text_y_coord = 30
 
     while True:
 
@@ -52,14 +56,15 @@ def main():
             td = clock.tick(60)
             display.fill(Colours.Black)
             display.blit(background, (0, 0))
-            logo = pygame.image.load("data\\gfx\\logo.png")
-            logo_w, logo_h = logo.get_size()
-            
-            display.blit(logo, ((metadata.screen_width/2) - (logo_w/2) , logo_y_coord))
+            logo_text = pygame.image.load("data\\gfx\\logo_text.png")
+            logo_text_w, logo_h = logo_text.get_size()
+            logo_image_w, logo_image_h = logo_image.get_size()
+            display.blit(logo_text, ((metadata.screen_width/2) - (logo_text_w/2), logo_text_y_coord))
+            display.blit(logo_image, ((metadata.screen_width/2) - (logo_image_w/2), logo_text_y_coord - logo_image_h - 5))
             pygame.display.update()
-            logo_y_coord = logo_y_coord + (20 / td)
+            logo_text_y_coord = logo_text_y_coord + (15 / td)
 
-            if logo_y_coord > metadata.screen_height:
+            if logo_text_y_coord > metadata.screen_height:
                 splash_screen = False
 
         if not splash_screen and not game.game_over:
