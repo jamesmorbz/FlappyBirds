@@ -15,19 +15,14 @@ class Player(MetaData):
         self.player_height: int = 51
         self.direction: int = 1
         self.distance: int = 0
-        self.coord_y: int = self.screen_height / 2
+        self.coord_y: int = self.screen_height - 10
         self.coord_x: int = self.screen_width / 2
         self.gravity: int = -0.1
         self.jump_height: int = 20
         self.speed: int = 200
-        self.right_player_sprite: pygame.image = pygame.image.load(
-            "data\\gfx\\right_bird.png"
-        ).convert_alpha()
-        self.left_player_sprite: pygame.image = pygame.image.load(
-            "data\\gfx\\left_bird.png"
-        ).convert_alpha()
-        self.image: pygame.Surface = self.refresh_sprite()
-        self.rect: pygame.rect = self.image.get_rect()
+        self.right_player_sprite: pygame.image = pygame.image.load("data\\gfx\\right_bird.png").convert_alpha()
+        self.left_player_sprite: pygame.image = pygame.image.load("data\\gfx\\left_bird.png").convert_alpha()
+        self.refresh_sprite()
         self.lives = 1
 
     def get_position(self):
@@ -46,20 +41,16 @@ class Player(MetaData):
         self.lives -= 1
 
         if self.lives == 0:
-           self.dead = True 
-           
+            self.dead = True
+
     def update(self, td):
         if self.is_jumping:
             # if self.double_jumping:
             #     self.jump_steps = 10
             #     self.double_jumping_applied = False
             if self.jump_steps >= -10:
-                self.coord_x += (
-                    abs(self.jump_steps) * self.direction * (self.speed * td)
-                )
-                self.coord_y -= (self.jump_steps * abs(self.jump_steps)) * (
-                    self.jump_height / 50
-                ) - ((self.gravity / (10 * td)))
+                self.coord_x += abs(self.jump_steps) * self.direction * (self.speed * td)
+                self.coord_y -= (self.jump_steps * abs(self.jump_steps)) * (self.jump_height / 50) - ((self.gravity / (10 * td)))
                 self.jump_steps -= 1
             else:
                 self.jump_steps = 10
@@ -72,8 +63,8 @@ class Player(MetaData):
         self.refresh_sprite()
 
     def refresh_sprite(self):
-        self.image = self.scale_sprite(self.get_sprite())
-        return self.image
+        self.image: pygame.Surface = self.scale_sprite(self.get_sprite())
+        self.player_rect: pygame.rect = self.image.get_rect(topleft=(self.get_position()))
 
     def check_window_boundary_collisions(self):
         if self.coord_x > (self.screen_width - self.image.get_size()[0]):
