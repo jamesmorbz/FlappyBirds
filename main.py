@@ -71,6 +71,10 @@ def main():
         if not splash_screen and not game.game_over:
             td = clock.tick(60)
             td = td / 1000  # Convert milliseconds to seconds
+
+            display.fill(Colours.Black)
+            display.blit(background, (0, 0))
+
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
                     if event.key == K_SPACE:
@@ -84,29 +88,33 @@ def main():
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     game.jump()
 
+            current_score_text = SMALL_FONT.render(str(game.score), True, Colours.Black)
+            total_jumps = BIG_FONT.render(str(game.total_jumps), True, Colours.Black)
+            total_jumps.set_alpha(127)
+
+            display.blit(current_score_text, diff_tuples(game.screen_size,current_score_text.get_size()))
+            total_jumps_w,total_jumps_h = total_jumps.get_size()
+            display.blit(total_jumps, ((game.screen_width / 2) - total_jumps_w, (game.screen_height / 2) - total_jumps_h))
+
             game.update(td)
             game.add_entity()
             game.check_collisions_of_entities()
             game.check_player_status()
             game.increment_score(1)
+            game.current_alive_time()
 
-            display.fill(Colours.Black)
-            display.blit(background, (0, 0))
             display.blit(game.image, game.get_position())
 
             for entity in game.entities:
                 display.blit(entity.sprite, (entity.coords))
 
-            current_score_text = FONT.render(str(game.score), True, Colours.Black)
-
-            display.blit(current_score_text, diff_tuples(game.screen_size,current_score_text.get_size()))
             for i in range(0, game.lives):
                 x, y = heart_image.get_size()
                 display.blit(heart_image, (i * x, game.screen_height - y))
 
         if game.game_over:
             display.fill(Colours.Red)
-            game_over = FONT.render(f"GAME OVER {game.name}. You Scored {game.score}", True, Colours.White)
+            game_over = SMALL_FONT.render(f"GAME OVER {game.name}. You Scored {game.score}", True, Colours.White)
             display.blit(game_over, diff_tuples(game.screen_size, game_over.get_size()))
             if not score_written:
                 game.write_to_scoreboard()
@@ -119,5 +127,6 @@ if __name__ == "__main__":
     metadata = MetaData()
     pygame.init()
     clock = pygame.time.Clock()
-    FONT = pygame.font.Font("data\\font\\font.otf", 36)
+    SMALL_FONT = pygame.font.Font("data\\font\\font.otf", 36)
+    BIG_FONT = pygame.font.Font("data\\font\\font.otf", 100)
     main()

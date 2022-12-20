@@ -11,6 +11,7 @@ class Game(Player):
     def __init__(self):
         super(Game, self).__init__()
         self.start_time: int = perf_counter()
+        self.alive_time: int = perf_counter()
         self.score: int = 0
         self.name: str = ""
         self.current_highscore: int = 0
@@ -18,7 +19,7 @@ class Game(Player):
         self.entities: list[Entity] = []
         self.max_lives: int = 10
         self.max_entities: int = 5
-
+        
     def update_player_name(self, name):
         self.name = name
 
@@ -37,9 +38,8 @@ class Game(Player):
             self.increment_score(10000)  # Bonus for Reaching Max Lives
 
     def current_alive_time(self):
-        current_time: int = perf_counter()
-        alive_time: int = current_time - self.start_time
-        return alive_time
+        current_time: datetime.timedelta = perf_counter()
+        self.alive_time: int = round((current_time - self.start_time))
 
     def get_lives(self, difficulty: str):
         if difficulty == "easy":
@@ -67,6 +67,8 @@ class Game(Player):
         data = {
             "name": self.name,
             "score": self.score,
+            "alive_time": self.alive_time,
+            "total_jumps": self.total_jumps,
             "timestamp": time,
         }
         field_names = list(data.keys())

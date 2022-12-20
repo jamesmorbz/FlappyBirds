@@ -24,6 +24,7 @@ class Player(MetaData):
         self.left_player_sprite: pygame.image = pygame.image.load("data\\gfx\\left_bird.png").convert_alpha()
         self.refresh_sprite()
         self.lives = 1
+        self.total_jumps = 0
 
     def get_position(self):
         return (self.coord_x, self.coord_y)
@@ -46,6 +47,7 @@ class Player(MetaData):
     def update(self, td):
         if self.is_jumping:
             # if self.double_jumping:
+            #     self.total_jumps += 1
             #     self.jump_steps = 10
             #     self.double_jumping_applied = False
             if self.jump_steps >= -10:
@@ -98,7 +100,8 @@ class Player(MetaData):
     def jump(self):
         if self.is_jumping and not self.double_jumping:
             self.double_jumping = True
-        else:
+        elif not self.is_jumping:
+            self.total_jumps += 1
             self.is_jumping = True
 
     def change_speed(self, change):
