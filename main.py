@@ -8,7 +8,7 @@ from src.game import Game
 from src.metadata import MetaData
 from src.entity import Entity
 import names
-
+from src.button import Button
 
 def diff_tuples(tuple1, tuple2):
     return tuple(map(lambda i, j: i - j, tuple1, tuple2))
@@ -29,8 +29,8 @@ def get_random_name():
     return names.get_full_name()
 
 def main():
-    splash_screen = False
-    MainMenu = False
+    splash_screen = True
+    main_menu = False
     MainGame = True
     score_written = False
 
@@ -65,10 +65,33 @@ def main():
 
             if logo_text_y_coord > metadata.screen_height:
                 splash_screen = False
+                main_menu = True
+                td = clock.tick(60)
 
             check_for_exit()
 
-        if not splash_screen and not game.game_over:
+        elif main_menu:
+            td = clock.tick(60)
+            display.fill(Colours.Black)
+            display.blit(background, (0, 0))
+            
+            start_img = pygame.image.load('data\\gfx\\start_btn.png').convert_alpha()
+            exit_img = pygame.image.load('data\\gfx\\exit_btn.png').convert_alpha()
+
+            start_button = Button(100, 200, start_img, 0.8)
+            exit_button = Button(450, 200, exit_img, 0.8)
+            
+            if start_button.draw(display):
+                main_menu = False
+                main_game = True
+                td = clock.tick(60)
+            if exit_button.draw(display):
+                pygame.quit()
+                sys.exit()
+
+            check_for_exit()
+
+        elif not game.game_over and main_game:
             td = clock.tick(60)
             td = td / 1000  # Convert milliseconds to seconds
 
@@ -112,7 +135,7 @@ def main():
                 x, y = heart_image.get_size()
                 display.blit(heart_image, (i * x, game.screen_height - y))
 
-        if game.game_over:
+        elif game.game_over:
             display.fill(Colours.Red)
             game_over = SMALL_FONT.render(f"GAME OVER {game.name}. You Scored {game.score}", True, Colours.White)
             display.blit(game_over, diff_tuples(game.screen_size, game_over.get_size()))
@@ -122,6 +145,7 @@ def main():
             check_for_exit()
 
         pygame.display.update()
+        
 
 if __name__ == "__main__":
     metadata = MetaData()
