@@ -15,7 +15,7 @@ class Player(MetaData):
         self.player_height: int = 51
         self.direction: int = 1
         self.distance: int = 0
-        self.coord_y: int = self.screen_height - 10
+        self.coord_y: int = self.screen_height / 2
         self.coord_x: int = self.screen_width / 2
         self.gravity: int = -0.1
         self.jump_height: int = 20
@@ -38,13 +38,13 @@ class Player(MetaData):
         if self.direction == -1:
             return self.left_player_sprite
 
-    def lose_a_life(self):
-        self.lives -= 1
-
-        if self.lives == 0:
-            self.dead = True
+    def change_lives(self, change):
+        self.lives += change
 
     def update(self, td):
+        if self.lives <= 0:
+            self.dead = True
+
         if self.is_jumping:
             # if self.double_jumping:
             #     self.total_jumps += 1
@@ -76,7 +76,7 @@ class Player(MetaData):
             self.direction = 1
 
         if self.coord_y > self.screen_height:
-            self.lose_a_life()
+            self.change_lives(-1)
             if self.lives > 0:
                 self.reset_player_position()
 

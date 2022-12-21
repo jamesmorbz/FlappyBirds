@@ -4,7 +4,6 @@ from src.player import Player
 from src.entity import Entity
 import random
 import datetime
-import pandas as pd
 import csv
 
 class Game(Player):
@@ -28,7 +27,7 @@ class Game(Player):
         if random_chance < 5:
             if len(self.entities) >= self.max_entities:
                 removed_entity = self.entities.pop(0)  # TODO Implement Removed Entities Have Negative Effect - E.g Thunder Cloud Mario Kart
-            entity_id = random.randint(1, 3)
+            entity_id = random.randint(1, 4)
             self.entities.append(Entity(entity_id))
 
     def update_lives(self, change):
@@ -51,13 +50,22 @@ class Game(Player):
 
     def increment_score(self, increase):
         self.score += increase
+        
+    def entity_effect(self, entity_type, change):
+        if entity_type == "life":
+            self.update_lives(change)
+        elif entity_type == "speed":
+            self.change_speed(change)
+        elif entity_type == "score":
+            self.increment_score(change)
+        else:
+            raise("Entity has Unknown Type.")
 
     def check_collisions_of_entities(self):
         for entity in self.entities:
             touching = entity.check_collision(self.player_rect)
             if touching:
-                self.increment_score(entity.score_change)
-                self.update_lives(entity.life_change)
+                self.entity_effect(entity.type, entity.change)
                 self.entities.remove(entity)
 
     def write_to_scoreboard(self):
