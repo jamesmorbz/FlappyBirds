@@ -1,10 +1,9 @@
 import json
 import pygame
-from pygame.locals import BUTTON_LEFT, K_ESCAPE, K_SPACE, KEYDOWN, RESIZABLE
+from pygame.locals import K_ESCAPE, KEYDOWN
 import sys
 import os
 import logging
-import pandas as pd
 import csv
 
 def read_config():
