@@ -1,102 +1,106 @@
 import sys
 
+import logging
 import pygame
-from pygame.locals import BUTTON_LEFT, K_ESCAPE, K_SPACE, KEYDOWN, RESIZABLE
+from pygame.locals import K_ESCAPE, K_SPACE, KEYDOWN, RESIZABLE
 
 from src.colours import Colours
 from src.game import Game
 from src.metadata import MetaData
-from src.entity import Entity
-import names
 from src.button import Button
-
-def diff_tuples(tuple1, tuple2):
-    return tuple(map(lambda i, j: i - j, tuple1, tuple2))
-
-
-def check_for_exit():
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
-        if event.type == KEYDOWN:
-            if event.key == K_ESCAPE:
-                pygame.quit()
-                sys.exit()
-
-
-def get_random_name():
-    return names.get_full_name()
+from src.helper import read_config, write_config, get_random_name, diff_tuples, check_for_exit, default_config_creation, exit_game
 
 def main():
-    splash_screen = True
-    main_menu = False
-    MainGame = True
+    default_config_creation()
+    config = read_config()
+    splash_screen = config["load_with_splash_screen"]
+    background_colour = tuple(config["background_colour"])
+    game_over_colour = tuple(config["game_over_colour"])
+    main_menu = True
+    main_game = False
     score_written = False
 
     display = pygame.display.set_mode((metadata.screen_size), RESIZABLE)
 
     pygame.display.set_caption("Flappy Pong")
 
-    background = pygame.image.load("data\\gfx\\background.png")
-    heart_image = pygame.image.load("data\\gfx\\heart.png").convert_alpha()
-    heart_image = pygame.transform.scale(heart_image, (40, 40))
-
-    logo_image = pygame.image.load("data\\gfx\\logo_image.png").convert_alpha()
-    pygame.display.set_icon(logo_image)
-    logo_image = pygame.transform.scale(logo_image, (200, 200))
-
     game = Game()
-    game.update_player_name(get_random_name())
-
+    pygame.display.set_icon(game.logo_image)
     logo_text_y_coord = 30
+    
+    start_button = Button(Colours.Green, 100,300,150,100, "Start", SMALL_FONT)
+    quit_button = Button(Colours.Red, metadata.screen_width-90,0,90,50, "Quit", SMALL_FONT)
+    options_button = Button(Colours.LightGreen, 390,300,150,100, "Options", SMALL_FONT)
+    text_input = Button(Colours.Blue, 120,150,400,50, " ", SMALL_FONT)
+    username = "ENTER NAME"
+    active_typing = False
 
     while True:
         if splash_screen:
             td = clock.tick(60)
-            display.fill(Colours.Black)
-            display.blit(background, (0, 0))
-            logo_text = pygame.image.load("data\\gfx\\logo_text.png")
+            display.fill(background_colour)
+            logo_text = pygame.image.load("data\gfx\logo_text.png")
             logo_text_w, logo_h = logo_text.get_size()
-            logo_image_w, logo_image_h = logo_image.get_size()
+            logo_image_w, logo_image_h = game.logo_image.get_size()
             display.blit(logo_text,((metadata.screen_width / 2) - (logo_text_w / 2), logo_text_y_coord))
-            display.blit(logo_image,((metadata.screen_width / 2) - (logo_image_w / 2),logo_text_y_coord - logo_image_h - 5,))
+            display.blit(game.logo_image,((metadata.screen_width / 2) - (logo_image_w / 2),logo_text_y_coord - logo_image_h - 5,))
             logo_text_y_coord = logo_text_y_coord + (15 / td)
 
             if logo_text_y_coord > metadata.screen_height:
                 splash_screen = False
-                main_menu = True
+                
                 td = clock.tick(60)
 
             check_for_exit()
 
         elif main_menu:
             td = clock.tick(60)
-            display.fill(Colours.Black)
-            display.blit(background, (0, 0))
+            display.fill(background_colour)
             
-            start_img = pygame.image.load('data\\gfx\\start_btn.png').convert_alpha()
-            exit_img = pygame.image.load('data\\gfx\\exit_btn.png').convert_alpha()
+            start_button.draw(display)
+            quit_button.draw(display)
+            options_button.draw(display)
+            text_input.draw(display)
+            username_text = SMALL_FONT.render(username, True, Colours.White)
+            display.blit(username_text, (130,155))
 
-            start_button = Button(100, 200, start_img, 0.8)
-            exit_button = Button(450, 200, exit_img, 0.8)
+            if any(pygame.mouse.get_pressed()):
+                if start_button.hover():
+                    if username != "ENTER NAME":
+                        main_menu = False
+                        main_game = True
+                        td = clock.tick(60)
+
+                if quit_button.hover():
+                    exit_game()
+
+                if options_button.hover():
+                    logging.info("NOT IMPLEMENTED YET!")
+
+                if text_input.hover():
+                    active_typing = True
+                else:
+                    active_typing = False
             
-            if start_button.draw(display):
-                main_menu = False
-                main_game = True
-                td = clock.tick(60)
-            if exit_button.draw(display):
-                pygame.quit()
-                sys.exit()
+            if active_typing:
+                text_input.color = Colours.LightBlue
+                for event in pygame.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_BACKSPACE:
+                            username = username[:-1]
+                        else:
+                            username += event.unicode
+                            game.update_player_name(username)
+            else:
+               text_input.color = Colours.Blue
 
             check_for_exit()
-
+            
         elif not game.game_over and main_game:
             td = clock.tick(60)
             td = td / 1000  # Convert milliseconds to seconds
 
-            display.fill(Colours.Black)
-            display.blit(background, (0, 0))
+            display.fill(background_colour)
 
             for event in pygame.event.get():
                 if event.type == KEYDOWN:
@@ -132,11 +136,11 @@ def main():
                 display.blit(entity.sprite, (entity.coords))
 
             for i in range(0, game.lives):
-                x, y = heart_image.get_size()
-                display.blit(heart_image, (i * x, game.screen_height - y))
+                x, y = game.heart_image.get_size()
+                display.blit(game.heart_image, (i * x, game.screen_height - y))
 
         elif game.game_over:
-            display.fill(Colours.Red)
+            display.fill(game_over_colour)
             game_over = SMALL_FONT.render(f"GAME OVER {game.name}. You Scored {game.score}", True, Colours.White)
             display.blit(game_over, diff_tuples(game.screen_size, game_over.get_size()))
             if not score_written:

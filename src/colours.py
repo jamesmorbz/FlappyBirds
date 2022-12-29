@@ -5,3 +5,5 @@ class Colours:
     Red = (255, 0, 0)
     Lightred = (255, 204, 203)
     Green = (0, 255, 0)
+    LightGreen = (19,164,149)
+    LightBlue = (45,129,255)

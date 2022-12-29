@@ -5,7 +5,7 @@ from src.entity import Entity
 import random
 import datetime
 import csv
-
+import pygame
 class Game(Player):
     def __init__(self):
         super(Game, self).__init__()
@@ -18,6 +18,8 @@ class Game(Player):
         self.entities: list[Entity] = []
         self.max_lives: int = 10
         self.max_entities: int = 5
+        self.logo_image: pygame.Surface = pygame.image.load("data\gfx\logo_image.png").convert_alpha()
+        self.logo_image: pygame.Surface = pygame.transform.scale(self.logo_image, (200, 200))
         
     def update_player_name(self, name):
         self.name = name
@@ -69,7 +71,7 @@ class Game(Player):
                 self.entities.remove(entity)
 
     def write_to_scoreboard(self):
-        path = 'data\\history\\scoreboard.csv'
+        path = 'data\history\scoreboard.csv'
 
         time = datetime.datetime.today().isoformat()
         data = {
@@ -86,3 +88,5 @@ class Game(Player):
             if scoreboard.tell() == 0:
                 writer.writeheader()
             writer.writerow(data)
+
+    

@@ -1,30 +1,27 @@
 import pygame
-
-#button class
 class Button():
-	def __init__(self, x, y, image:pygame.Surface, scale):
-		width = image.get_width()
-		height = image.get_height()
-		self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
-		self.rect = self.image.get_rect()
-		self.rect.topleft = (x, y)
-		self.clicked = False
+		def __init__(self, color, x, y, width, height, text, font):
+			self.color = color
+			self.x = x
+			self.y = y
+			self.width = width
+			self.height = height
+			self.text = text
+			self.font: pygame.font.Font = font
 
-	def draw(self, surface):
-		action = False
-		#get mouse position
-		pos = pygame.mouse.get_pos()
+		def draw(self, win: pygame.Surface, outline=None):
+			if outline:
+				pygame.draw.rect(win, outline, (self.x-2,self.y-2,self.width+4,self.height+4),0)
+				
+			pygame.draw.rect(win, self.color, (self.x,self.y,self.width,self.height),0)
 
-		#check mouseover and clicked conditions
-		if self.rect.collidepoint(pos):
-			if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
-				self.clicked = True
-				action = True
+			text = self.font.render(self.text, 1, (0,0,0))
+			win.blit(text, (self.x + (self.width/2 - text.get_width()/2), self.y + (self.height/2 - text.get_height()/2)))
 
-		if pygame.mouse.get_pressed()[0] == 0:
-			self.clicked = False
-
-		#draw button on screen
-		surface.blit(self.image, (self.rect.x, self.rect.y))
-
-		return action
+		def hover(self):
+			mouse = pygame.mouse.get_pos()
+			if mouse[0] > self.x and mouse[0] < self.x + self.width:
+				if mouse[1] > self.y and mouse[1] < self.y + self.height:
+					return True
+				
+			return False

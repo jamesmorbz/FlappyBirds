@@ -4,27 +4,27 @@ import pygame
 
 configurations = {
     "1": {
-        "image": "data\\gfx\\coin.png",
+        "image": "data\gfx\coin.png",
         "type": "score",
         "change": 1000,
         "effect_time": 0,
     },
     "2": {
-        "image": "data\\gfx\\1-up.png",
+        "image": "data\gfx\\1-up.png",
         "type": "life",
         "change": 1,
         "effect_time": 0,
     },
     "3": {
-        "image": "data\\gfx\\zoom_shoes.png",
+        "image": "data\gfx\zoom_shoes.png",
         "type": "speed",
         "change": 10,
         "effect_time": 10,
     },
     "4": {
-        "image": "data\\gfx\\pipe.png",
+        "image": "data\gfx\pipe.png",
         "type": "life",
-        "change": -2,
+        "change": -1,
         "effect_time": 0,
     }
 }

@@ -20,11 +20,13 @@ class Player(MetaData):
         self.gravity: int = -0.1
         self.jump_height: int = 20
         self.speed: int = 200
-        self.right_player_sprite: pygame.image = pygame.image.load("data\\gfx\\right_bird.png").convert_alpha()
-        self.left_player_sprite: pygame.image = pygame.image.load("data\\gfx\\left_bird.png").convert_alpha()
+        self.right_player_sprite: pygame.image = pygame.image.load("data\gfx\\right_bird.png").convert_alpha()
+        self.left_player_sprite: pygame.image = pygame.image.load("data\gfx\left_bird.png").convert_alpha()
         self.refresh_sprite()
         self.lives = 1
         self.total_jumps = 0
+        self.heart_image: pygame.Surface = pygame.image.load("data\gfx\heart.png").convert_alpha()
+        self.heart_image: pygame.Surface = pygame.transform.scale(self.heart_image, (40, 40))
 
     def get_position(self):
         return (self.coord_x, self.coord_y)
