@@ -8,17 +8,16 @@ from src.colours import Colours
 from src.game import Game
 from src.metadata import MetaData
 from src.button import Button
-from src.helper import read_config, write_config, get_random_name, diff_tuples, check_for_exit, default_config_creation, exit_game
+import src.helper as helper
 
 def main():
-    default_config_creation()
-    config = read_config()
-    splash_screen = config["load_with_splash_screen"]
-    background_colour = tuple(config["background_colour"])
-    game_over_colour = tuple(config["game_over_colour"])
+    helper.default_config_creation()
+    config = helper.read_config()
+    splash_screen = config.get("load_with_splash_screen", True)
+    background_colour = tuple(config.get("background_colour", (81, 159, 204)))
+    game_over_colour = tuple(config.get("game_over_colour", (200, 95, 255)))
+    last_played_user = config.get("last_played_user", None)
     main_menu = True
-    main_game = False
-    score_written = False
 
     display = pygame.display.set_mode((metadata.screen_size), RESIZABLE)
 
@@ -32,8 +31,13 @@ def main():
     quit_button = Button(Colours.Red, metadata.screen_width-90,0,90,50, "Quit", SMALL_FONT)
     options_button = Button(Colours.LightGreen, 390,300,150,100, "Options", SMALL_FONT)
     text_input = Button(Colours.Blue, 120,150,400,50, " ", SMALL_FONT)
-    username = "ENTER NAME"
+    play_again_button = Button(Colours.Maroon, 170,120,300,200, "PLAY AGAIN", SMALL_FONT)
+    if last_played_user is not None:
+        username = last_played_user
+    else:
+        username = "ENTER NAME"
     active_typing = False
+    current_highscore = helper.get_current_highscore()
 
     while True:
         if splash_screen:
@@ -51,7 +55,7 @@ def main():
                 
                 td = clock.tick(60)
 
-            check_for_exit()
+            helper.check_for_exit()
 
         elif main_menu:
             td = clock.tick(60)
@@ -64,27 +68,34 @@ def main():
             username_text = SMALL_FONT.render(username, True, Colours.White)
             display.blit(username_text, (130,155))
 
+            current_highscore_text = TINY_FONT.render(current_highscore, True, Colours.Black)
+            display.blit(current_highscore_text, (0,0))
+
             if any(pygame.mouse.get_pressed()):
                 if start_button.hover():
-                    if username != "ENTER NAME":
+                    if username != "ENTER NAME" and username:
                         main_menu = False
-                        main_game = True
+                        helper.write_config({"last_played_user": username})
                         td = clock.tick(60)
 
                 if quit_button.hover():
-                    exit_game()
+                    helper.exit_game()
 
                 if options_button.hover():
                     logging.info("NOT IMPLEMENTED YET!")
 
                 if text_input.hover():
                     active_typing = True
+                    username = ""
                 else:
                     active_typing = False
             
             if active_typing:
                 text_input.color = Colours.LightBlue
                 for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        sys.exit()
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_BACKSPACE:
                             username = username[:-1]
@@ -94,9 +105,9 @@ def main():
             else:
                text_input.color = Colours.Blue
 
-            check_for_exit()
+            helper.check_for_exit()
             
-        elif not game.game_over and main_game:
+        elif not game.game_over:
             td = clock.tick(60)
             td = td / 1000  # Convert milliseconds to seconds
 
@@ -119,7 +130,7 @@ def main():
             total_jumps = BIG_FONT.render(str(game.total_jumps), True, Colours.Black)
             total_jumps.set_alpha(127)
 
-            display.blit(current_score_text, diff_tuples(game.screen_size,current_score_text.get_size()))
+            display.blit(current_score_text, helper.diff_tuples(game.screen_size,current_score_text.get_size()))
             total_jumps_w,total_jumps_h = total_jumps.get_size()
             display.blit(total_jumps, ((game.screen_width / 2) - total_jumps_w, (game.screen_height / 2) - total_jumps_h))
 
@@ -142,11 +153,21 @@ def main():
         elif game.game_over:
             display.fill(game_over_colour)
             game_over = SMALL_FONT.render(f"GAME OVER {game.name}. You Scored {game.score}", True, Colours.White)
-            display.blit(game_over, diff_tuples(game.screen_size, game_over.get_size()))
-            if not score_written:
-                game.write_to_scoreboard()
-                score_written = True
-            check_for_exit()
+            display.blit(game_over, helper.diff_tuples(game.screen_size, game_over.get_size()))
+            play_again_button.draw(display)
+            quit_button.draw(display)
+
+            if any(pygame.mouse.get_pressed()):
+                if play_again_button.hover():
+                    game = Game(name=game.name)
+                    current_highscore = helper.get_current_highscore()
+                    main_menu = True
+                    td = clock.tick(60)
+                if quit_button.hover():
+                    helper.exit_game()
+
+            game.write_to_scoreboard()
+            helper.check_for_exit()
 
         pygame.display.update()
         
@@ -155,6 +176,7 @@ if __name__ == "__main__":
     metadata = MetaData()
     pygame.init()
     clock = pygame.time.Clock()
+    TINY_FONT = pygame.font.Font("data\\font\\font.otf", 16)
     SMALL_FONT = pygame.font.Font("data\\font\\font.otf", 36)
     BIG_FONT = pygame.font.Font("data\\font\\font.otf", 100)
     main()

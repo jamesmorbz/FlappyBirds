@@ -7,12 +7,12 @@ import datetime
 import csv
 import pygame
 class Game(Player):
-    def __init__(self):
+    def __init__(self, name=""):
         super(Game, self).__init__()
         self.start_time: int = perf_counter()
         self.alive_time: int = perf_counter()
         self.score: int = 0
-        self.name: str = ""
+        self.name: str = name
         self.current_highscore: int = 0
         self.game_over = False
         self.entities: list[Entity] = []
@@ -20,7 +20,7 @@ class Game(Player):
         self.max_entities: int = 5
         self.logo_image: pygame.Surface = pygame.image.load("data\gfx\logo_image.png").convert_alpha()
         self.logo_image: pygame.Surface = pygame.transform.scale(self.logo_image, (200, 200))
-        
+        self.updated_scoreboard: bool = False
     def update_player_name(self, name):
         self.name = name
 
@@ -71,22 +71,26 @@ class Game(Player):
                 self.entities.remove(entity)
 
     def write_to_scoreboard(self):
-        path = 'data\history\scoreboard.csv'
+        if not self.updated_scoreboard:
+            path = 'data\history\scoreboard.csv'
 
-        time = datetime.datetime.today().isoformat()
-        data = {
-            "name": self.name,
-            "score": self.score,
-            "alive_time": self.alive_time,
-            "total_jumps": self.total_jumps,
-            "timestamp": time,
-        }
-        field_names = list(data.keys())
+            time = datetime.datetime.today().isoformat()
+            data = {
+                "name": self.name,
+                "score": self.score,
+                "alive_time": self.alive_time,
+                "total_jumps": self.total_jumps,
+                "timestamp": time,
+            }
+            field_names = list(data.keys())
 
-        with open(path, 'a+') as scoreboard:
-            writer = csv.DictWriter(scoreboard, fieldnames=field_names, lineterminator='\n')
-            if scoreboard.tell() == 0:
-                writer.writeheader()
-            writer.writerow(data)
+            with open(path, 'a+') as scoreboard:
+                writer = csv.DictWriter(scoreboard, fieldnames=field_names, lineterminator='\n')
+                if scoreboard.tell() == 0:
+                    writer.writeheader()
+                writer.writerow(data)
+
+            self.updated_scoreboard = True
+            pygame.time.wait(200)
 
     

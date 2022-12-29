@@ -7,3 +7,4 @@ class Colours:
     Green = (0, 255, 0)
     LightGreen = (19,164,149)
     LightBlue = (45,129,255)
+    Maroon = (128,0,64)
