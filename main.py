@@ -9,6 +9,10 @@ from src.game import Game
 from src.metadata import MetaData
 from src.button import Button
 import src.helper as helper
+import os 
+
+if getattr(sys, 'frozen', False):
+    os.chdir(sys._MEIPASS)
 
 def main():
     helper.default_config_creation()
@@ -76,6 +80,7 @@ def main():
                     if username != "ENTER NAME" and username:
                         main_menu = False
                         helper.write_config({"last_played_user": username})
+                        game.update_player_name(username)
                         td = clock.tick(60)
 
                 if quit_button.hover():
@@ -101,7 +106,6 @@ def main():
                             username = username[:-1]
                         else:
                             username += event.unicode
-                            game.update_player_name(username)
             else:
                text_input.color = Colours.Blue
 
@@ -157,6 +161,8 @@ def main():
             play_again_button.draw(display)
             quit_button.draw(display)
 
+            game.write_to_scoreboard()
+
             if any(pygame.mouse.get_pressed()):
                 if play_again_button.hover():
                     game = Game(name=game.name)
@@ -166,7 +172,6 @@ def main():
                 if quit_button.hover():
                     helper.exit_game()
 
-            game.write_to_scoreboard()
             helper.check_for_exit()
 
         pygame.display.update()
